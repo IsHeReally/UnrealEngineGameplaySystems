@@ -4,7 +4,9 @@
 1. [Few Words About Me](#few-words-about-me)
    -  [Few Things About this Document](#few-things-about-this-document) 
 2. [Targeting System](#targeting-system)
-   - [Blueprint Approach](#blueprint-approach) 
+   - [Blueprint Approach](#blueprint-approach)
+      - [Event Begin Play](#event-begin-play-blueprints)  
+      - [GetActorsInRange](#get-actors-in-range-function)
 
 
 
@@ -48,29 +50,24 @@ The goal is to understand the logic, not just reproduce results.
 --- 
 What is a targeting system? 
 <p align="justify">
-
  Different genres approach targeting differently. A turn-based game, for example, selects a target directly through UI interaction, so there’s no need for runtime cycling or scanning.</p> 
 
 <p align="justify"> 
-
  In real-time single-player or multiplayer games, however, the system must continuously compute valid targets around the player. That is where targeting logic becomes essential.</p> 
 
 <p align="justify"> 
-
  And since my own project, are based on this type of genre this <b>Targeting System</b> will be based on cycling, sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. 
 </p> 
 
-#### Blueprint Approach
+## Blueprint Approach
 --- 
 
 <p align="justify">
-
 My first ever video, of me documenting myself was based on a <b>Targeting System</b> that the Player could use, to cycle through different enemies. For example, i wanted the player to be able to target an Enemy, mostly an AI since this project focuses on single player perspective, and no matter the number of enemies in the scene, could cycle through and be sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. I actually managed to do that but now that i look back on how the project is, i feel like it's not only unoptimazed but the scenario to be able to target a ''large'' amount of Enemies is not ideal. </p> 
 
 :point_right: <https://www.youtube.com/watch?v=0PXnXTQs_8o&t=1265s> 
 
 <p align="justify"> 
-
 In the video above, i try my best to explain what i am essentialy doing, but some <b>key parts</b> are, that i use local <b>Blueprint</b> TArray containers through the functions to collect correct data (Actor Pointers), then loop over them with the <b>for each Blueprint </b> node and sort them by <b>Sight</b> and then by <b>Distance</b>, using specifically the functions <b>Overlap Actors</b> and <b>Single Line Trace For Objects</b>. 
 </p> 
 
@@ -78,8 +75,9 @@ In the video above, i try my best to explain what i am essentialy doing, but som
 
 
 <p align="justify">
-
 As the ScreenShots Above, the <b>Key Functions</b> are <b>GetActorsInRange, GetFilterEnemiesInSight, GetClosestTarget, ShowTheClosestTarget, ClearTarget</b> and <b>CancelTargeting</b>. So i will try my best to explain it here as well.
+
+#### Event Begin Play Blueprints
 
 First things first. This is a <b>Blueprints</b> only approach. A key part of this specific component is that lives in the <b>PlayerController</b>. Now that this is out of the way, in <b>Event BeginPlay</b> can safely take the <b>GetOwner</b> node and do a Casting in order to have a controller ref and then from the controlled Pawn can Cast to <b>Character</b> and promote to a variable. This is relatively ''safe'' because the classes player and controller as far as i understand will be always in memory, no matter what. 
 </p>
@@ -101,11 +99,14 @@ Since this project is for single player though, i could use nodes like <b>GetPla
 ---
 <p align="justify">
 
+
+
+#### Get Actors In Range Function
+
 We need in this component at least the character ref so in functions like <b>GetActorsInRange & GetFilterEnemiesInSight</b> and also <b>GetClosestTarget</b> so we have the location of the player. For the Function <b>GetActorsInRange</b> the idea is, when the player presses the key (for my own project i use the key Tab) it spawns an Overlapping Sphere for Actors with trace object channel of pawn(ECC_Pawn). Now though that i think about it, could use a multi sphere for objects and the object type could be my custom one.
 </p>
 
 <p align="center">
-
 <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/OverlapWithPawns.PNG"></a>
 <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/OverlapWithPawns.PNG" width="600">
 </p>
@@ -116,9 +117,9 @@ After the sphere spawn, i loop over the pawns that the sphere trace hit. I run c
 </p>
 
 <p align="center">
-
 <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/LoopOverPawns.PNG"></a>
 <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/LoopOverPawns.PNG" width="600">
+
 </p>
 
 
