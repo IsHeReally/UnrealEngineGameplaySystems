@@ -7,7 +7,7 @@
    - [Blueprint Approach](#blueprint-approach)
       - [Event Begin Play](#event-begin-play-blueprints)  
       - [GetActorsInRange](#get-actors-in-range-function)
-
+      - [FilterEnemiesInSight](#filter-enemies-in-sight)
 
 
 #### Few Words About Me
@@ -134,3 +134,50 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 
 - GetBoxCollisionLocation(); which returns the world location of a box collision above the Enemy AI head.
 
+
+<p align="center">
+
+<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnbIsTargetable.PNG"></a>
+  <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnbIsTargetable.PNG" width="700"/>
+</p>
+
+
+<p align="center">
+
+| | |
+|-|-|
+| <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnBoxLocation.PNG" width="350"/> |<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ShowTargetingMaterial.PNG" width="350"/> |
+
+</p>
+
+
+
+---
+#### Filter Enemies In Sight
+
+<p aligh="justify">
+For the second function, in blueprints only approach, follows the <b>FilterEnemiesInSight</b>. What, is happenening is the system activates first the findsactorsinrange, which returns a local array. Then for filtering further more, by sight, the system loops over the local array. The difference is that, instead of a sphere for actors or multi sphere, I use a single line trace for objects, with <b>Object Types the World Static</b> and my own custom object type <b>Targeting</b> which is the EGameTraceChannel1(Unreal Engine gives us 19 custom channels and they called EGameTraceChannels). Also another difference is instead of spawning the line from the root of the player character, the starting location is from the camera. That helps the player and avoids the confusion that if the line trace hits a very small world static object in the world, even tho the enemy is visible, it won't target him. Further more, in the <b>Controller</b>, we could have a function that tweaks the camera Z position, so just to be safe i made a bool that if the camera is up in the Z Axis spawn the line trace from the current position, but if this boolean is false, spawn the line trace from the camera's current position + 200 units in Z axis (~2Meters).
+</p>
+
+
+<p align="center">
+<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/LineTraceAndCamera.PNG"></a>
+  <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/LineTraceAndCamera.PNG" width="700"/>
+</p>
+
+
+---
+
+<p align="justify">
+I can do single line trace and not multi trace, because the system does a for each loop from the previous local array. Further more after i get the actor location, which is the interface that returns the world location from a box collision inside the enemy, if the line trace hits a world static object, the loop jumbs to the next element. If it did not hit a world static object then, the system checking again if what it hit is targetable and if it is, the element is getting added to another local array (Actors In Range). Now it's a good time to meet the main array of the component which i named it Actors. If the actor that the line trace that just hit, is inside the main array, the systems does nothing, instead it's jumping to the next element. But if the main array does not contain the item then it's getting added to a new local array (Fresh Actors In Range). On completion if the second local array is empty then , the main is getting cleared and then the first array (actors in range) is getting returned. If it's not empty , return the second local array </p>
+
+
+<p align="center">
+
+| | |
+|-|-|
+| <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/TraceHitCond.PNG"></a><img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/TraceHitCond.PNG" width="350"/> |<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnLocalCond.PNG"></a> <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnLocalCond.PNG" width="350"/> |
+</p>
+
+
+---
