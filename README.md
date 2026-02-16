@@ -83,8 +83,8 @@ First things first. This is a <b>Blueprints</b> only approach. A key part of thi
 </p>
 
 <p align="center">
-<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\TargetingBlueprintsOnlyBeginPlay.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\TargetingBlueprintsOnlyBeginPlay.PNG" width="500">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TargetingBlueprintsOnlyBeginPlay.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TargetingBlueprintsOnlyBeginPlay.PNG" width="500">
 </p>
 
 ---
@@ -92,8 +92,8 @@ First things first. This is a <b>Blueprints</b> only approach. A key part of thi
 Since this project is for single player though, i could use nodes like <b>GetPlayerController & GetPlayerCharacter</b> with index 0, which will return the local player.
 
 <p align="center">
-<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/CharactersIndex0.PNG"></a>
-<img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/CharactersIndex0.PNG" width="500">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\CharactersIndex0.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\CharactersIndex0.PNG" width="500">
 </p>
 
 ---
@@ -107,8 +107,8 @@ We need in this component at least the character ref so in functions like <b>Get
 </p>
 
 <p align="center">
-<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/OverlapWithPawns.PNG"></a>
-<img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/OverlapWithPawns.PNG" width="600">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\OverlapWithPawns.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\OverlapWithPawns.PNG" width="600">
 </p>
 
 ---
@@ -117,8 +117,8 @@ After the sphere spawn, i loop over the pawns that the sphere trace hit. I run c
 </p>
 
 <p align="center">
-<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/LoopOverPawns.PNG"></a>
-<img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/LoopOverPawns.PNG" width="600">
+<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG" width="600">
 
 </p>
 
@@ -137,8 +137,8 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 
 <p align="center">
 
-<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnbIsTargetable.PNG"></a>
-  <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnbIsTargetable.PNG" width="700"/>
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG"></a>
+  <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG" width="700"/>
 </p>
 
 
@@ -146,7 +146,7 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 
 | | |
 |-|-|
-| <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnBoxLocation.PNG" width="350"/> |<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ShowTargetingMaterial.PNG" width="350"/> |
+| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG" width="350"/> |<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG" width="350"/> |
 
 </p>
 
@@ -161,8 +161,8 @@ For the second function, in blueprints only approach, follows the <b>FilterEnemi
 
 
 <p align="center">
-<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/LineTraceAndCamera.PNG"></a>
-  <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/LineTraceAndCamera.PNG" width="700"/>
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LineTraceAndCamera.PNG"></a>
+  <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LineTraceAndCamera.PNG" width="700"/>
 </p>
 
 
@@ -176,7 +176,7 @@ I can do single line trace and not multi trace, because the system does a for ea
 
 | | |
 |-|-|
-| <a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/TraceHitCond.PNG"></a><img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/TraceHitCond.PNG" width="350"/> |<a href="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnLocalCond.PNG"></a> <img src="ScreenShotsAndVids/ScreenShots/TargetingSystem/ReturnLocalCond.PNG" width="350"/> |
+| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG" width="350"/> |<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG" width="350"/> |
 </p>
 
 
