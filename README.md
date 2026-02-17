@@ -466,23 +466,10 @@ Inside the sorting, i need to use the same type of pointer, (i can't use a raw p
 Now that we finished with the **C++** functionality, in **Blueprints** those functions would look something like that:
 
 <p align="center">
-<b>C++ Helper Functions</b>
+<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result1.mp4" width="700" height="500" controls></video>
+<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Reslt2.mp4" width="700" height="500"  controls></video>
+<video 
+src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result3.mp4" width="700" height="500"  controls></video>
 </p>
-<p align="center">
-<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\C++FunctionsForBlueprints.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\C++FunctionsForBlueprints.PNG" width="800"></p>
-
----
-
-#### Blueprint Logic
-
-Since now i have the functions to help myself, i could use the same ''logic'' with the [Blueprints Only Approach](#blueprint-approach) but instead of emptying the arrays, or using locals i can reserve and reset, for efficiency. For the [Get Actors In Range](#get-actors-in-range-function), first get PlayerCharacterRef and PlayerControllerRef, convert to validate get, so only if are valid, can activate, remove the local array and use the ```TArray<TObjectPtr<AActor>> ActorInRangePool ``` , reset (emptying but keep the memory reserve) and do the same logic for the loop. I could also check if the .Num() is equal with ActorsInRangePoolSize, and if it's equal break the loop so i don't have dynamic allocations and re allocations. On completed, now i can sort the array and have it ready for the next function.
-
-|Begin Sphere Overlap Actors | Loop Over Elements |
-| :----------: | :---------: |
-|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG" width="500">|
-
----
-
-
 
  
