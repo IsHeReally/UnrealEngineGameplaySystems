@@ -37,7 +37,9 @@ I plan to document those systems as well, as much as i can, but my current goal 
 Anyways the point, of this document, or rather the theme of this document will be the **Targeting System**, since this was my first project as well.
 
 #### Few Things About This Document
+
 --- 
+
 When I first started learning Unreal Engine, I relied heavily on courses and tutorials and fell into what many call *tutorial hell*. 
 
 Over the last few months I decided to break away from copying and instead build my own systems. The targeting system here allows the player to cycle through targets by pressing a key. The implementation is presented in three stages:
@@ -50,20 +52,22 @@ The goal is to understand the logic, not just reproduce results.
   
 #### Targeting System 
 --- 
+
 What is a targeting system? 
 
- Different genres approach targeting differently. A turn-based game, for example, selects a target directly through UI interaction, so there’s no need for runtime cycling or scanning. 
+Different genres approach targeting differently. A turn-based game, for example, selects a target directly through UI interaction, so there’s no need for runtime cycling or scanning. 
 
 
- In real-time single-player or multiplayer games, however, the system must continuously compute valid targets around the player. That is where targeting logic becomes essential.
+In real-time single-player or multiplayer games, however, the system must continuously compute valid targets around the player. That is where targeting logic becomes essential.
 
 <p align="justify">
  But is the <b>Targeting System</b> even important to spend a considerable amount of time to build? Well in my personal opinion yes. While it highly depends on the game and of course the genre of the game, a good <b>Targeting System</b> contributes to not only the visuals but, also indicates to the player with who/what should interact. Let alone later in the game, could have a hybrid approach. For example, say you have a set of abilties. Some abilities might need a valid target to be activated. </p>
 
- And since my own project, are based on RPG genre this <b>Targeting System</b> will be based on cycling, sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. 
+And since my own project, are based on RPG genre this **Targeting System** will be based on cycling, sorted by **Distance, Sight** and **Enemy Types**. 
 
 
 ## Blueprint Approach
+
 --- 
 
 <p align="justify">
@@ -75,20 +79,24 @@ My first ever video, of me documenting myself was based on a <b>Targeting System
 In the video above, i try my best to explain what i am essentialy doing, but some <b>key parts</b> are, that i use local <b>Blueprint</b> TArray containers through the functions to collect correct data (Actor Pointers), then loop over them with the <b>for each Blueprint </b> node and sort them by <b>Sight</b> and then by <b>Distance</b>, using specifically the functions <b>Overlap Actors</b> and <b>Single Line Trace For Objects</b>. 
 </p> 
 
-
-
-
 <p align="justify">
-As the ScreenShots Above, the <b>Key Functions</b> are <b>GetActorsInRange, GetFilterEnemiesInSight, GetClosestTarget, ShowTheClosestTarget, ClearTarget</b> and <b>CancelTargeting</b>. So i will try my best to explain it here as well.
+As the ScreenShots Above, the <b>Key Functions</b> are <b>GetActorsInRange, GetFilterEnemiesInSight, GetClosestTarget, ShowTheClosestTarget, ClearTarget</b> and <b>CancelTargeting</b>. So i will try my best to explain it here as well. </p>
 
 #### Event Begin Play Blueprints
 
+<p align="justify">
 First things first. This is a <b>Blueprints</b> only approach. A key part of this specific component is that lives in the <b>PlayerController</b>. Now that this is out of the way, in <b>Event BeginPlay</b> can safely take the <b>GetOwner</b> node and do a Casting in order to have a controller ref and then from the controlled Pawn can Cast to <b>Character</b> and promote to a variable. This is relatively ''safe'' because the classes player and controller as far as i understand will be always in memory, no matter what. 
+</p>
+
+
+
+<p align="center">
+<b>Event Begin Play</b>
 </p>
 
 <p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TargetingBlueprintsOnlyBeginPlay.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TargetingBlueprintsOnlyBeginPlay.PNG" width="500">
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TargetingBlueprintsOnlyBeginPlay.PNG" width="700">
 </p>
 
 ---
@@ -96,33 +104,41 @@ First things first. This is a <b>Blueprints</b> only approach. A key part of thi
 Since this project is for single player though, i could use nodes like <b>GetPlayerController & GetPlayerCharacter</b> with index 0, which will return the local player.
 
 <p align="center">
+<b>Player Getters</b>
+</p>
+<p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\CharactersIndex0.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\CharactersIndex0.PNG" width="500">
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\CharactersIndex0.PNG" width="700">
 </p>
 
 ---
-<p align="justify">
-
-
 
 #### Get Actors In Range Function
 
+<p align="justify">
 We need in this component at least the character ref so in functions like <b>GetActorsInRange & GetFilterEnemiesInSight</b> and also <b>GetClosestTarget</b> so we have the location of the player. For the Function <b>GetActorsInRange</b> the idea is, when the player presses the key (for my own project i use the key Tab) it spawns an Overlapping Sphere for Actors with trace object channel of pawn(ECC_Pawn). Now though that i think about it, could use a multi sphere for objects and the object type could be my custom one.
 </p>
 
 <p align="center">
+<b>Start of Actors In Range</b>
+</p>
+<p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\OverlapWithPawns.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\OverlapWithPawns.PNG" width="600">
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\OverlapWithPawns.PNG" width="700">
 </p>
 
 ---
+
 <p align="justify">
 After the sphere spawn, i loop over the pawns that the sphere trace hit. I run checks like what is the <b>State Tag</b> (FGameplayTag inside the component and the enemy). A good example would be State.Dead, which if the enemy is dead the system has no reason to do other checks so it jumps to the next element which if the pawn passes the <b>State</b> condition can check a boolean that is indeed targetable but also can check the enemy type as well through agameplay tag. A good example would be if in the <b>SettingMenu UI</b> for Targeting, the Player could choose what type to target(Enemy.Type1 or Enemy.Type2). So, say, the player chooses Enemy.Type1, then the local array will have only Pawns that return the FGameplayTag Type2. But also if the player chooses Enemy (which is the parent/root tag), then every Pawn could get add to the local array.
 </p>
 
 <p align="center">
-<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG" width="600">
+<b>Loop Over  and Filter The Enemy Pawns</b>
+</p>
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LoopOverPawns.PNG" width="700">
 
 </p>
 
@@ -138,12 +154,12 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 
 - GetBoxCollisionLocation(); which returns the world location of a box collision above the Enemy AI head.
 
-
-
+<p align="center">
+<b>return if enemy pawn is targetable</b>
+</p>
 <p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG"></a>
   <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG" width="700"/>
-  <b>return if enemy pawn is targetable</b>
 </p>
 
 
@@ -151,20 +167,21 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 
 |Return Target Location |Show Targeting Material/Visuals |
 | --------------------- | ------------------------------ |
-| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG" width="350"/> |<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG" width="350"/> |
+| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG" width="500"/> |<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG" width="500"/> |
 
 </p>
 
-
-
 ---
+
 #### Filter Enemies In Sight
 
 <p aligh="justify">
 For the second function, in blueprints only approach, follows the <b>FilterEnemiesInSight</b>. What, is happenening is the system activates first the findsactorsinrange, which returns a local array. Then for filtering further more, by sight, the system loops over the local array. The difference is that, instead of a sphere for actors or multi sphere, I use a single line trace for objects, with <b>Object Types the World Static</b> and my own custom object type <b>Targeting</b> which is the EGameTraceChannel1(Unreal Engine gives us 19 custom channels and they called EGameTraceChannels). Also another difference is instead of spawning the line from the root of the player character, the starting location is from the camera. That helps the player and avoids the confusion that if the line trace hits a very small world static object in the world, even tho the enemy is visible, it won't target him. Further more, in the <b>Controller</b>, we could have a function that tweaks the camera Z position, so just to be safe i made a bool that if the camera is up in the Z Axis spawn the line trace from the current position, but if this boolean is false, spawn the line trace from the camera's current position + 200 units in Z axis (~2Meters).
 </p>
 
-
+<p align="center">
+<b>Start Filtering By Sight</b>
+</p>
 <p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LineTraceAndCamera.PNG"></a>
   <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\LineTraceAndCamera.PNG" width="700"/>
@@ -176,12 +193,9 @@ For the second function, in blueprints only approach, follows the <b>FilterEnemi
 <p align="justify">
 I can do single line trace and not multi trace, because the system does a for each loop from the previous local array. Further more after i get the actor location, which is the interface that returns the world location from a box collision inside the enemy, if the line trace hits a world static object, the loop jumbs to the next element. If it did not hit a world static object then, the system checking again if what it hit is targetable and if it is, the element is getting added to another local array (Actors In Range). Now it's a good time to meet the main array of the component which i named it Actors. If the actor that the line trace that just hit, is inside the main array, the systems does nothing, instead it's jumping to the next element. But if the main array does not contain the item then it's getting added to a new local array (Fresh Actors In Range). On completion if the second local array is empty then , the main is getting cleared and then the first array (actors in range) is getting returned. If it's not empty , return the second local array </p>
 
-
-<p align="center">
-
-| | |
-|-|-|
-| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG" width="350"/> |<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG" width="350"/> |
+|Trace Hit Conditions |Return Local Array |
+|:-: | :-: |
+| <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\TraceHitCond.PNG" width="500"/> |<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnLocalCond.PNG" width="500"/> |
 </p>
 
 
@@ -192,8 +206,11 @@ I can do single line trace and not multi trace, because the system does a for ea
 Okay, now that the system knows, the filtered actors in the world/scene, it's time to calculate the distance. For my own system, it's relatively the same for those tutorials. As you can see here: 
 
 <p align="center">
+<b>Calculation By Distance Inside the Loop</b>
+</p>
+<p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\GetClosestTarget.PNG"></a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\GetClosestTarget.PNG">
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\GetClosestTarget.PNG" width="700">
 </p>
 
 ---
