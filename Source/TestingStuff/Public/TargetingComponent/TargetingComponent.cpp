@@ -330,10 +330,13 @@ void UTargetingComponent::SortActorsInRangeByDistance()
 	if (IsValid(PlayerCharacterRef))
 	{
 		FVector PlayerLocation = PlayerCharacterRef->GetActorLocation();
-	
-		ActorsInRangePool.Sort([PlayerLocation](const AActor& A, const AActor& B)
+		
+		ActorsInRangePool.Sort([PlayerLocation](const TObjectPtr<AActor>& A, const TObjectPtr<AActor>& B)
 		{
-			return FVector::DistSquared(A.GetActorLocation(), PlayerLocation) < FVector::DistSquared(B.GetActorLocation(),PlayerLocation);
+			const AActor* ActorA = A.Get();
+			const AActor* ActorB = B.Get();
+			
+			return FVector::DistSquared(ActorA->GetActorLocation(), PlayerLocation) < FVector::DistSquared(ActorB->GetActorLocation(),PlayerLocation);
 		});
 	}
 }

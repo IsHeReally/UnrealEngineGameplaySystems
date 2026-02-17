@@ -278,10 +278,46 @@ And pass the address of the blueprint array so i can reserve it but even with a 
 
 Another weakness is loop control. I never break out of loops early. So if 100 actors are added, the system checks all 100 every time even if a valid result was already found. When the player presses the targeting key, everything happens in one frame, which means the system could be doing unnecessary work.
 
-There’s also a structural inefficiency in FilterEnemiesInSight. I use two local arrays that end up holding almost the same data. The first one mostly acts like a bridge, but it doesn’t actually need to store the full dataset. This creates extra allocations and memory churn that could be avoided with a cleaner data flow.
+There’s also a structural inefficiency in [Filter Enemies In Sight](#filter-enemies-in-sight). I use two local arrays that end up holding almost the same data. The first one mostly acts like a bridge, but it doesn’t actually need to store the full dataset. This creates extra allocations and memory churn that could be avoided with a cleaner data flow.
 
 None of these issues break the system, but they show how a project that works functionally can still hide scaling problems once the number of actors increases.
 
+Lastly, in the [Get Closest Target](#get-closest-target), I think it’s a waste of computation to keep calculating locations and comparing vectors manually inside loops. A cleaner approach would be to just sort the array once using predicate sorting in C++ and let the container handle ordering.
+
+Something like this:
+
+```C++
+void SortArray()
+{
+  if(IsValid(PlayerCharacterRef))
+  {
+    FVector PlayerLocation = PlayerCharacterRef->GetActorLocation();
+    Array.Sort([PlayerLocation](const AActor*& A, const AActor*& B)
+    {
+      return FVector::SquaredDist(A.GetActorLocation(), PlayerLocation)
+            <FVector::SquaredDist(B.GetActorLocation(), PlayerLocation)
+    });
+  }
+}
+```
+This way, instead of running a separate distance calculation function for every pawn each time I need the closest one, I can sort the array once after [Get Actors In Range](#get-actors-in-range-function) finishes and always have the closest target at index 0.
+
+The distance checks still happen internally during sorting, but the logic becomes centralized and easier to reason about. It also removes the need for an extra pass over the array just to search for the nearest actor.
+
+For small arrays the difference is probably negligible, but structurally this feels cleaner and easier to scale.
+
 ## Result
 
+And since the **Blueprints** only approach is not in these files but the **Hybrid & C++** approach, i wanted to show with 3 simple small videos the results (With out any changes in the movement properties or locking the camera to hte target). If you want to see the functions either way, they are some screenshots in the Folder ScreenshotsAndVids->ScreenShots->TargetingSystem->BlueprintsOnly
+
+<p align="center">
+  <video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result1.mp4" width="700" controls></video>
+
+
+  <video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Reslt2.mp4" width="700" controls></video>
+
+
+  <video 
+  src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result3.mp4" width="700" controls></video>
+</p>
 
