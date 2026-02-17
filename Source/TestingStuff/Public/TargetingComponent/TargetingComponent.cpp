@@ -27,17 +27,48 @@ void UTargetingComponent::BeginPlay()
 	// to have a character ref. 
 	// Might need a delay at least in blueprints when call parent function from the child targeting component
 	// This works only if this targeting component lives in Player Controller
+	RetryNumber= 0;
 	PlayerControllerRef = Cast<APlayerController>(GetOwner());
     if (PlayerControllerRef)
     {
 	    PlayerCharacterRef = Cast<ACharacter>(PlayerControllerRef->GetPawn());
-    	// Reserve All Arrays. If reserving from blueprints then dont reserve here.
-    	ReserveActorArrays();
+    	if (IsValid(PlayerCharacterRef))
+    	{
+    		// Reserve All Arrays. If reserving from blueprints then dont reserve here.
+    		ReserveActorArrays();
+    		GetWorld()->GetTimerManager().ClearTimer(CastTimer);
+    	}
     }
     else
     {
-    	UE_LOG(LogTemp, Warning, TEXT("Owner Of TargetingComponent is not a player controller"))
+    	GetWorld()->GetTimerManager().SetTimer(CastTimer,this,&UTargetingComponent::CastEveryXSeconds , 0.5f, true);
+    	UE_LOG(LogTemp, Warning, TEXT("Owner Of TargetingComponent is not a player controller"));
     }
+    
+}
+void UTargetingComponent::CastEveryXSeconds()
+{
+	RetryNumber++;
+	if (RetryNumber > MaxRetries)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to find PlayerController/Pawn after %d retries"), MaxRetries);
+		GetWorld()->GetTimerManager().ClearTimer(CastTimer);
+		return;
+	}
+	if (RetryNumber < MaxRetries && !IsValid(PlayerControllerRef))
+	{
+		PlayerControllerRef = Cast<APlayerController>(GetOwner());
+	}
+	if (PlayerControllerRef && !IsValid(PlayerCharacterRef))
+	{
+		PlayerCharacterRef = Cast<ACharacter>(PlayerControllerRef->GetPawn());
+	}
+	if (IsValid(PlayerControllerRef) && IsValid(PlayerCharacterRef))
+	{
+		ReserveActorArrays();
+		GetWorld()->GetTimerManager().ClearTimer(CastTimer);
+		UE_LOG(LogTemp, Log, TEXT("PlayerController and Pawn found, arrays reserved."));
+	}
 }
 
 void UTargetingComponent::ReserveActorArrays()
@@ -333,13 +364,14 @@ void UTargetingComponent::SortActorsInRangeByDistance()
 		
 		ActorsInRangePool.Sort([PlayerLocation](const TObjectPtr<AActor>& A, const TObjectPtr<AActor>& B)
 		{
-			const AActor* ActorA = A.Get();
-			const AActor* ActorB = B.Get();
-			
-			return FVector::DistSquared(ActorA->GetActorLocation(), PlayerLocation) < FVector::DistSquared(ActorB->GetActorLocation(),PlayerLocation);
+		
+			return FVector::DistSquared(A.Get()->GetActorLocation(), PlayerLocation) < FVector::DistSquared(B.Get()->GetActorLocation(),PlayerLocation);
 		});
 	}
 }
+
+
+
 // Mostly Debugging Functions For Blueprints.
 int32 UTargetingComponent::GetMaxSizeOfArrays(const ETargetingPoolArraysType ArrayType) const
 {

@@ -127,6 +127,15 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Targeting|Functions|Sorting")
 	void SortActorsInRangeByDistance();
 	// --------------------End Of Targeting Funcs------------------------------------
+	
+	UFUNCTION(BlueprintCallable, Category="Targeting|Timer|Casting")
+	void CastEveryXSeconds();
+	UPROPERTY()
+	FTimerHandle CastTimer;
+	UPROPERTY()
+	int32 RetryNumber;
+	UPROPERTY()
+	int32 MaxRetries = 6;
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

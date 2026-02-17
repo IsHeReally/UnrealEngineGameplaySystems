@@ -13,6 +13,9 @@
       - [CancelTargeting](#cancel-targeting)
       - [Problems](#problems)
       - [Result](#result)
+   - [Hybrid Approach](#hybrid-approach)
+      - [Array Functions](#array-functions)  
+      - [Blueprint Logic](#blueprint-logic) 
 #### Few Words About Me
 ---
     
@@ -72,16 +75,13 @@ And since my own project, are based on RPG genre this **Targeting System** will 
 --- 
 
 <p align="justify">
-My first ever video, of me documenting myself was based on a <b>Targeting System</b> that the Player could use, to cycle through different enemies. For example, i wanted the player to be able to target an Enemy, mostly an AI since this project focuses on single player perspective, and no matter the number of enemies in the scene, could cycle through and be sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. I actually managed to do that but now that i look back on how the project is, i feel like it's not only unoptimazed but the scenario to be able to target a ''large'' amount of Enemies is not ideal. </p> 
+My first ever video, of me documenting myself was based on a <b>Targeting System</b> that the Player could use, to cycle through different enemies. For example, i wanted the player to be able to target an Enemy, mostly an AI since this project focuses on single player perspective, and no matter the number of enemies in the scene, could cycle through and be sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. I actually managed to do that but now that i look back on how the project is, i feel like it's not only unoptimized and the scenario to be able to target a ''large'' amount of Enemies is not ideal. </p> 
 
 :point_right: <https://www.youtube.com/watch?v=0PXnXTQs_8o&t=1265s> 
 
 <p align="justify"> 
-In the video above, i try my best to explain what i am essentialy doing, but some <b>key parts</b> are, that i use local <b>Blueprint</b> TArray containers through the functions to collect correct data (Actor Pointers), then loop over them with the <b>for each Blueprint </b> node and sort them by <b>Sight</b> and then by <b>Distance</b>, using specifically the functions <b>Overlap Actors</b> and <b>Single Line Trace For Objects</b>. 
+In the video above, i try my best to explain what i am essentially doing, but some <b>key parts</b> are, that i use local <b>Blueprint</b> TArray containers through the functions to collect correct data (Actor Pointers), then loop over them with the <b>for each Blueprint </b> node and sort them by <b>Sight</b> and then by <b>Distance</b>, using specifically the functions <b>Overlap Actors</b> and <b>Single Line Trace For Objects</b>. 
 </p> 
-
-<p align="justify">
-As the ScreenShots Above, the <b>Key Functions</b> are <b>GetActorsInRange, GetFilterEnemiesInSight, GetClosestTarget, ShowTheClosestTarget, ClearTarget</b> and <b>CancelTargeting</b>. So i will try my best to explain it here as well. </p>
 
 #### Event Begin Play Blueprints
 
@@ -310,10 +310,179 @@ For small arrays the difference is probably negligible, but structurally this fe
 
 And since the **Blueprints** only approach is not in these files but the **Hybrid & C++** approach, i wanted to show with 3 simple small videos the results (With out any changes in the movement properties or locking the camera to hte target). If you want to see the functions either way, they are some screenshots in the Folder ScreenshotsAndVids->ScreenShots->TargetingSystem->BlueprintsOnly
 
-<p align="center">
-<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result1.mp4" width="700" height="500" controls></video>
-<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Reslt2.mp4" width="700" height="500"  controls></video>
-<video 
-src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result3.mp4" width="700" height="500"  controls></video>
-</p>
 
+## Hybrid Approach
+
+Now that i ''finished'' talking about the [Blueprints Only Approach](#blueprint-approach), it's time to talk about the hybrid approach. In my opinion i find this way the best, especially since i do not fully understand **C++** but i get the aditional memory optimization functionality from **C++** and execute the logic with **Blueprints**. Also a very good point, is that **Blueprints** debugging and actually, see the flow (from one node to another), really helps me, to understand what the problems are and how i can fix them, while in **C++** i tried once to debug, and i gave up after 30 seconds.
+
+Now there are some handy functions in **C++** that **Blueprints** does not expose, and from Epic's documentation it's recommended to reserve TArray Containers, especially when we know how elements could each hold <https://dev.epicgames.com/documentation/en-us/unreal-engine/array-containers-in-unreal-engine>. In this project files i will be using the names ***ActorsInRangePool, MainActorPool & ActorsInSightPool*** as those are the actual arrays in **C++**
+
+
+### Array Functions
+
+As i said above mostly in [Problems](#problems) section, even if in the game, you have a small amount of AI to target it's much preferable to .Reserve() and .Reset() instead of allocating and de allocating local arrays each time the player presses the key of choice, i could simply do something like this:
+
+```C++
+void ReserveArrays()
+{
+  ActorsInRangePool.Reserve(ActorsInRangePoolSize);
+  MainActorPool.Reserve(MainActorPoolSize);
+  ActorsInSightPool.Reserve(ActorsInSightPoolSize);
+}
+```
+
+And call this function in **Event Begin Play** after the casting to get the PlayerControllerRef and the PlayerCharacterRef. The PoolSizes(ActorsInRangePoolSize  etc) i can give a UPROPERTY() macro with a **EditDefaults** only so not only it's friendly for the garbage collector, but i can tweak how much memory, i want to reserve in editor. A more dynamic way, if at some point accidentaly call .Clear() in some of the TArrays (because they are C++ variables if at any point i call clear i remove the Reserve function and the engine tries again to allocate and de allocate), would be something like this :
+
+```C++
+void ReserveArray(UPARAM(ref)TArray<AActor*>& ArrayToReserve, const int32 PoolSize)
+{
+  ArrayToReserve.Reserve(PoolSize);
+}
+```
+That being said, because the TArray<AActor*>& is getting passed by reference, the editor might think it's an output and not an input. So the best way i found to be dynamic is something like this:
+```C++
+UENUM(BlueprintType)
+enum class ETargetingPoolArraysType : uint8
+{
+	MainActorPool = 0  UMETA(DisplayName = "Main Actor Pool"),
+	ActorsInRangePool  UMETA(DisplayName = "Actors In Range Pool"),
+	ActorsInSightPool  UMETA(DisplayName = "Actors In Sight Pool"),
+};
+```
+And i can make a functions like this :
+```C++
+void ReserveArray(const ETargetingPoolArraysType ArrayType, const int32 SizePool)
+{
+  switch(ArrayType)
+  case  ETargetingPoolArraysType::MainActorPool:
+        MainActorPool.Reserve(SizePool);
+        MainActorPoolSize = SizePool;
+        break;
+        case  ETargetingPoolArraysType::ActorsInRangePool :
+        ActorsInRangePool.Reserve(SizePool);
+        ActorsInRangePoolSize = SizePool;
+        break;
+        case  ETargetingPoolArraysType::ActorsInSightPool :
+        ActorsInSightPool.Reserve(SizePool);
+        ActorsInSightPool = SizePool;
+        break;
+}
+
+```
+And for .Reset() function would be the same but the differense is, don't need to pass an integer to reset, since i want to Empty the TArray but i want the reserved memory to not change.
+
+```C++
+void ResetArray(const ETargetingPoolArraysType ArrayType)
+{
+  switch(ArrayType)
+  case  ETargetingPoolArraysType::MainActorPool:
+        MainActorPool.Reset();
+        break;
+        case  ETargetingPoolArraysType::ActorsInRangePool :
+        ActorsInRangePool.Reset();
+        break;
+        case  ETargetingPoolArraysType::ActorsInSightPool :
+        ActorsInSightPool.Reset();
+        break;
+}
+```
+
+<p align="justify">
+Now, not only i can reserve the memory and make my CPU life more easy, but i can control how many iterations i want, and how i can approach the targeting. For example i could reserve for the ActorsInRangePool and MainActorPool for 100 pointes (in a 64x system this would be 200*8 bytes ~ 1,6kb), but i could also reserve 100 pointers for ActorsInRange and a much smaller amount for the Main Actor Pool, something like 20-30. With that logic, i could filter the 100 actors in the scene but the player could target only 20-30 closest targets which is a much more reasonable size(cause let's be real who will cycle over 100 targets?). </p>
+
+I also can get helping function with the same logic of the UENUM, printing the allocated memory and max size in blueprints:
+
+```C++
+// Mostly Debugging Functions For Blueprints.
+int32 UTargetingComponent::GetMaxSizeOfArrays(const ETargetingPoolArraysType ArrayType) const
+{
+	// Returns the Max Number. Mostly a helper Function for debugging in blueprints
+	switch (ArrayType)
+	{
+	case ETargetingPoolArraysType::MainActorPool:
+		return MainActorPool.Max();
+		
+	case ETargetingPoolArraysType::ActorsInRangePool:
+		return ActorsInRangePool.Max();
+		
+	case ETargetingPoolArraysType::ActorsInSightPool:
+		return ActorsInSightPool.Max();
+		
+	default:
+		return 0;
+	}
+}
+
+int32 UTargetingComponent::GetAllocatedMemoryArrays(const ETargetingPoolArraysType ArrayTypes) const
+{
+	// Mostly to see the memory that arrays using, inside blueprints
+	switch (ArrayTypes)
+	{
+	case ETargetingPoolArraysType::MainActorPool:
+		return MainActorPool.GetAllocatedSize();
+		
+	case ETargetingPoolArraysType::ActorsInRangePool:
+		return ActorsInRangePool.GetAllocatedSize();
+		
+	case ETargetingPoolArraysType::ActorsInSightPool:
+		return ActorsInSightPool.GetAllocatedSize();
+	default:
+		return 0;
+	}
+}
+```
+
+And lastly, instead of the [Get Closest Target](#get-closest-target), i can completely delete it and do something like this:
+```C++
+void UTargetingComponent::SortActorsInRangeByDistance()
+{
+	// if valid then sort the array.
+	if (IsValid(PlayerCharacterRef))
+	{
+		FVector PlayerLocation = PlayerCharacterRef->GetActorLocation();
+		
+		ActorsInRangePool.Sort([PlayerLocation](const TObjectPtr<AActor>& A, const TObjectPtr<AActor>& B)
+		{
+		
+			return FVector::DistSquared(A.Get()->GetActorLocation(), PlayerLocation) < FVector::DistSquared(B.Get()->GetActorLocation(),PlayerLocation);
+		});
+	}
+}
+```
+A few notes in the Sorting Predicate i'm not completely sure but because my TArrays are someting like this:
+```C++
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
+TArray<TObjectPtr<AActor>> MainActorPool;
+	
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
+TArray<TObjectPtr<AActor>> ActorsInRangePool;
+	
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
+TArray<TObjectPtr<AActor>> ActorsInSightPool;
+```
+
+Inside the sorting, i need to use the same type of pointer, (i can't use a raw pointer AActor*& cause i am using TObjectPtr). That being said i get a warning which i do not know how to fix. A simpler approach would be, just to make the TArrays<AActor*> instead of TObjectPtrs.
+
+Now that we finished with the **C++** functionality, in **Blueprints** those functions would look something like that:
+
+<p align="center">
+<b>C++ Helper Functions</b>
+</p>
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\C++FunctionsForBlueprints.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\C++FunctionsForBlueprints.PNG" width="800"></p>
+
+---
+
+#### Blueprint Logic
+
+Since now i have the functions to help myself, i could use the same ''logic'' with the [Blueprints Only Approach](#blueprint-approach) but instead of emptying the arrays, or using locals i can reserve and reset, for efficiency. For the [Get Actors In Range](#get-actors-in-range-function), first get PlayerCharacterRef and PlayerControllerRef, convert to validate get, so only if are valid, can activate, remove the local array and use the ```TArray<TObjectPtr<AActor>> ActorInRangePool ``` , reset (emptying but keep the memory reserve) and do the same logic for the loop. I could also check if the .Num() is equal with ActorsInRangePoolSize, and if it's equal break the loop so i don't have dynamic allocations and re allocations. On completed, now i can sort the array and have it ready for the next function.
+
+|Begin Sphere Overlap Actors | Loop Over Elements |
+| :----------: | :---------: |
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG" width="500">|
+
+---
+
+
+
+ 
