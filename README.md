@@ -209,12 +209,9 @@ I set two local variables. One is a ''bridge'' actor pointer and the other is a 
 Since those two functions are small, i decided to put those together in the [Chapters](#chapters-). The **clearing function** what it does, is set the main actor to nullptr and send a false as boolean with the interface to, ''hide/collapse'' any widgets or to set in my case the overlay material to nothing. On the other hand the **Show Target** is to set the main actor from the local variable, add to main array and then send a boolean as true to show the visuals.
 
 
-
-|[Clear Target](#ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ClearVisualAndTarget.PNG) | [Show Target](#ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowClosestTarget.PNG) |
+|Clear Visuals | Show Closest Target  |
 | :----------: | :---------: |
-|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG"> </a>
-<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG" width="350"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG" width="350">|
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG" width="500">|
 
-</p>
 
 
