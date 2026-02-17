@@ -2,14 +2,16 @@
 # Unreal Engine Gameplay Systems
 ##  Chapters :
 1. [Few Words About Me](#few-words-about-me)
-   -  [Few Things About this Document](#few-things-about-this-document) 
+    - [Few Things About this Document](#few-things-about-this-document) 
 2. [Targeting System](#targeting-system)
    - [Blueprint Approach](#blueprint-approach)
       - [Event Begin Play](#event-begin-play-blueprints)  
       - [GetActorsInRange](#get-actors-in-range-function)
       - [FilterEnemiesInSight](#filter-enemies-in-sight)
-
-
+      - [GetClosestTarget](#get-closest-target)
+      - [ShowTargetAndClear](#show-target-and-clear)
+      - [CancelTargeting](#cancel-targeting)
+      - [Problems](#problems)
 #### Few Words About Me
 ---
     
@@ -49,15 +51,17 @@ The goal is to understand the logic, not just reproduce results.
 #### Targeting System 
 --- 
 What is a targeting system? 
+
+ Different genres approach targeting differently. A turn-based game, for example, selects a target directly through UI interaction, so there’s no need for runtime cycling or scanning. 
+
+
+ In real-time single-player or multiplayer games, however, the system must continuously compute valid targets around the player. That is where targeting logic becomes essential.
+
 <p align="justify">
- Different genres approach targeting differently. A turn-based game, for example, selects a target directly through UI interaction, so there’s no need for runtime cycling or scanning.</p> 
+ But is the <b>Targeting System</b> even important to spend a considerable amount of time to build? Well in my personal opinion yes. While it highly depends on the game and of course the genre of the game, a good <b>Targeting System</b> contributes to not only the visuals but, also indicates to the player with who/what should interact. Let alone later in the game, could have a hybrid approach. For example, say you have a set of abilties. Some abilities might need a valid target to be activated. </p>
 
-<p align="justify"> 
- In real-time single-player or multiplayer games, however, the system must continuously compute valid targets around the player. That is where targeting logic becomes essential.</p> 
+ And since my own project, are based on RPG genre this <b>Targeting System</b> will be based on cycling, sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. 
 
-<p align="justify"> 
- And since my own project, are based on this type of genre this <b>Targeting System</b> will be based on cycling, sorted by <b>Distance, Sight</b> and <b>Enemy Types</b>. 
-</p> 
 
 ## Blueprint Approach
 --- 
@@ -135,17 +139,18 @@ The Checks are coming from a blueprint interface that lives inside the enemy bas
 - GetBoxCollisionLocation(); which returns the world location of a box collision above the Enemy AI head.
 
 
-<p align="center">
 
+<p align="center">
 <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG"></a>
   <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnbIsTargetable.PNG" width="700"/>
+  <b>return if enemy pawn is targetable</b>
 </p>
 
 
 <p align="center">
 
-| | |
-|-|-|
+|Return Target Location |Show Targeting Material/Visuals |
+| --------------------- | ------------------------------ |
 | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG"></a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ReturnBoxLocation.PNG" width="350"/> |<a href="SScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG"></a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowTargetingMaterial.PNG" width="350"/> |
 
 </p>
@@ -181,3 +186,35 @@ I can do single line trace and not multi trace, because the system does a for ea
 
 
 ---
+
+#### Get Closest Target
+
+Okay, now that the system knows, the filtered actors in the world/scene, it's time to calculate the distance. For my own system, it's relatively the same for those tutorials. As you can see here: 
+
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\GetClosestTarget.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\GetClosestTarget.PNG">
+</p>
+
+---
+
+<p align="justify">
+I set two local variables. One is a ''bridge'' actor pointer and the other is a float. After i loop over the filtered array and calculate the distance using vector location, vector length, and returning the actor, so after can show the visuals. I tried nodes like <b>Distance(Vector)</b> but for some reason it was kinda buggy, or i was not using it correctly. An alternative choice could be the <b>DistanceSquared(Vector)</b>.
+</p>
+
+
+
+#### Show Target And Clear
+
+Since those two functions are small, i decided to put those together in the [Chapters](#chapters-). The **clearing function** what it does, is set the main actor to nullptr and send a false as boolean with the interface to, ''hide/collapse'' any widgets or to set in my case the overlay material to nothing. On the other hand the **Show Target** is to set the main actor from the local variable, add to main array and then send a boolean as true to show the visuals.
+
+
+
+|[Clear Target](#ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ClearVisualAndTarget.PNG) | [Show Target](#ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ShowClosestTarget.PNG) |
+| :----------: | :---------: |
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG"> </a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG" width="350"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG" width="350">|
+
+</p>
+
+
