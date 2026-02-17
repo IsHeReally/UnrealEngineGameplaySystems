@@ -310,10 +310,9 @@ For small arrays the difference is probably negligible, but structurally this fe
 
 And since the **Blueprints** only approach is not in these files but the **Hybrid & C++** approach, i wanted to show with 3 simple small videos the results (With out any changes in the movement properties or locking the camera to hte target). If you want to see the functions either way, they are some screenshots in the Folder ScreenshotsAndVids->ScreenShots->TargetingSystem->BlueprintsOnly
 
-<p align="center">
-<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result1.mp4" width="700" height="500" controls></video>
-<video src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Reslt2.mp4" width="700" height="500"  controls></video>
-<video 
-src="ScreenShotsAndVids\ScreenShots\TargetingSystem\BlueprintsOnly\ResultVids\Result3.mp4" width="700" height="500"  controls></video>
-</p>
+
+https://github.com/user-attachments/assets/77974eac-0b80-4c27-8bc6-ae507ab0a887
+
+https://github.com/user-attachments/assets/03631260-5f39-4617-948b-0d2e217c053a
+
 
