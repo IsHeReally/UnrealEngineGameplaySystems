@@ -12,6 +12,7 @@
       - [ShowTargetAndClear](#show-target-and-clear)
       - [CancelTargeting](#cancel-targeting)
       - [Problems](#problems)
+      - [Result](#result)
 #### Few Words About Me
 ---
     
@@ -230,5 +231,57 @@ Since those two functions are small, i decided to put those together in the [Cha
 | :----------: | :---------: |
 |<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ClearVisuals.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\ShowTargetActor.PNG" width="500">|
 
+---
+
+So now that the core functions are finished, the order of the activation would be pressing the key of choice -> clear visuals & setting the actor to nullptr -> Show Target Actor, which is triggering the function chain.
+
+
+#### Cancel Targeting
+
+One last thing before the problems section, is the cancel targeting function. With canceling the <b>Targeting System</b>, the system just calling the clearing visuals function to set the actor to nullptr and clearing the main array as well. This could take a separate key, of choice, and reset the whole targeting system.
+
+<p align="center">
+<b>CancelTargeting</b>
+</p>
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\CancelTargeting.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\ScreenShots\CancelTargeting.PNG" width="700">
+</p>
+
+---
+
+Some of these functions are irrelevant to the core targeting system and are just setting the character/pawn movement properties. Since the component lives in the controller though, those function could live in there instead of the component.
+
+
+### Problems
+
+Since this was my first project, I didn’t really dive too deep into optimization at the time. The system works, it cycles targets and filters by **Sight, Distance** and one thing I actually liked about the structure is that the local arrays are recreated every function call. That means they always start empty, so I never need to manually call **.Clear() Array**. Every execution is basically a fresh state.
+
+But that “advantage” can become a problem really fast.
+
+Right now I never check the length of the arrays anywhere. If a scene suddenly has 100 pawns and they all pass the conditions, they all get added and processed. In small encounters that’s fine, but imagine a war-type scene with lots of enemies and allies. Even actors that don’t end up being valid targets are still getting checked. The system technically works, but it doesn’t scale safely.
+
+Another issue is memory behavior. From what I understood from Epic’s documentation <https://dev.epicgames.com/documentation/en-us/unreal-engine/array-containers-in-unreal-engine#t-array>, when .Add() or .AddUnique() is called, TArray doesn’t just add one element, it may reallocate and grow its capacity geometrically (similar to std::vector). This is efficient in general because it avoids constant resizing, but if the array keeps growing during loops it can still trigger extra allocations and copies.
+
+A better approach would be to Reserve an expected size ahead of time:
+```C++
+    Array.Reserve(NumberToReserve);
+```
+This reduces reallocations and makes performance more predictable. In small scenes (10–30 pawns) this probably won’t matter much, but it’s still better practice to plan for growth instead of assuming the scene will always stay small. I could do probably something like that:
+
+``` C++
+ void ReserveArray(TArray<AActor*>& ArrayToReserve, int32 Num)
+{
+    ArrayToReserve.Reserve(Num); 
+}
+```
+And pass the address of the blueprint array so i can reserve it but even with a UPARAM(ref) i see the TArray as an output and not as an input.
+
+Another weakness is loop control. I never break out of loops early. So if 100 actors are added, the system checks all 100 every time even if a valid result was already found. When the player presses the targeting key, everything happens in one frame, which means the system could be doing unnecessary work.
+
+There’s also a structural inefficiency in FilterEnemiesInSight. I use two local arrays that end up holding almost the same data. The first one mostly acts like a bridge, but it doesn’t actually need to store the full dataset. This creates extra allocations and memory churn that could be avoided with a cleaner data flow.
+
+None of these issues break the system, but they show how a project that works functionally can still hide scaling problems once the number of actors increases.
+
+## Result
 
 
