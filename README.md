@@ -479,4 +479,29 @@ Since now i have the functions to help myself, i could use the same ''logic'' wi
 |Begin Sphere Overlap Actors | Loop Over Elements |
 | :----------: | :---------: |
 |<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridGetOverlapActors.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\HybridLooping.PNG" width="500">|
+
+
+For the [Filtered by Sight](#filter-enemies-in-sight) it's a bit more complicated since now, the loop is getting done with ActorsInRangePool TArray instead of a local, one. First and foremost, i can safely check if The array is empty don't even try to filter enemies by sight. If it's not empty, since i checked in the previous function the PLayerControllerRef and PlayerCharacterRef if they are valid, it's highly undoubtable that they suddenly became not valid in the same frame. So i can start the loop. The logic of the single trace is the same as blueprint's only approach. It gets the location of the collision box above enemy's head as the end location. The object types are the same, targeting(my own custom collision channel) and world static. The logic is different though from now on
+
+|Filter In Sight Begin | Loop Over Elements |
+| :----------: | :---------: |
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\FilterBySightBegin.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\FilterBySightBegin.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\LogicInsideLoop.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\LogicInsideLoop.PNG" width="500">|
  
+----
+
+<p align="justify">
+From the screenshots above, now i have a break, and instead of having two local arrays that i return, i have a local actor (which i don't really need but it's much cleaner for nodes), and a visibility boolean. So the logic is, if the trace hits a world static object in the world the visibility boolean will be false while if it hits my own channel that means an enemy is visible. To be more exact, i am adding to the ActorInSightPool array which is a bridge array(mostly for checking) and then i have the condition if the Main Actor Array contains the element, that means that the player already cycled through this enemy. For this specific logic, the contain logic, suppose we looping with 100 actors and the main array has also 100 actors. The worst scenario would be something like 10.000 iterations, since 100x100=10.000. With this method, the pooling method i could set the main array max number to something like 20 or 30, which i reduce the iterations in the worst scenario by 70% - 80% (10.000 iterations should benothing by the way, but it's better to optimize).  Also now if the actor is visible and is not inside the main actor array, i can break the loop and save some more computation. </p>
+
+On completed, i need to check a few things before i show the enemy though:
+
+<p align="center">
+On Completed </p>
+
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\OnCompletion.PNG"></a>
+<img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\OnCompletion.PNG" width="700">
+</p>
+
+---
+
+
