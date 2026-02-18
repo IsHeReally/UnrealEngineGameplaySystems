@@ -15,7 +15,8 @@
       - [Result](#result)
    - [Hybrid Approach](#hybrid-approach)
       - [Array Functions](#array-functions)  
-      - [Blueprint Logic](#blueprint-logic) 
+      - [Blueprint Logic](#blueprint-logic)
+   - [C++ Approach](#c++-approach)    
 #### Few Words About Me
 ---
     
@@ -490,7 +491,7 @@ For the [Filtered by Sight](#filter-enemies-in-sight) it's a bit more complicate
 ----
 
 <p align="justify">
-From the screenshots above, now i have a break, and instead of having two local arrays that i return, i have a local actor (which i don't really need but it's much cleaner for nodes), and a visibility boolean. So the logic is, if the trace hits a world static object in the world the visibility boolean will be false while if it hits my own channel that means an enemy is visible. To be more exact, i am adding to the ActorInSightPool array which is a bridge array(mostly for checking) and then i have the condition if the Main Actor Array contains the element, that means that the player already cycled through this enemy. For this specific logic, the contain logic, suppose we looping with 100 actors and the main array has also 100 actors. The worst scenario would be something like 10.000 iterations, since 100x100=10.000. With this method, the pooling method i could set the main array max number to something like 20 or 30, which i reduce the iterations in the worst scenario by 70% - 80% (10.000 iterations should benothing by the way, but it's better to optimize).  Also now if the actor is visible and is not inside the main actor array, i can break the loop and save some more computation. </p>
+From the screenshots above, now i have a loop with a break, and instead of having two local arrays that the function returns, there is a local actor (which i don't really need but it's much cleaner for nodes), and a visibility boolean. So the logic is, if the trace hits a world static object in the world the visibility boolean will be false while if it hits my own channel that means an enemy is visible. To be more exact, i am adding to the ActorInSightPool array which is a bridge array(mostly for checking) and then i have the condition if the Main Actor Array contains the element, that means that the player already cycled through this enemy. For this specific logic, the contain logic, suppose we looping with 100 actors and the main array has also 100 actors. The worst scenario would be something like 10.000 iterations, since 100x100=10.000. With this method, the pooling method i could set the main array max number to something like 20 or 30, which i reduce the iterations in the worst scenario by 70% - 80% (10.000 iterations should benothing by the way, but it's better to optimize).  Also now if the actor is visible and is not inside the main actor array, i can break the loop and save some more computation. </p>
 
 On completed, i need to check a few things before i show the enemy though:
 
@@ -504,4 +505,38 @@ On Completed </p>
 
 ---
 
+<p align="justify">
+The checking arrays function, is extremely important, since with this system, could end up very easily in an infinite loop. A good idea is to have maybe, a tracking number as a safe exit point. I tested several times my own and i end up, not doing a tracking number. So the checks. If the bridge array is empty, in this case the <b>Actor In Sight Pool</b> is empty, then the player either cycled through all potential targets, or there are either no enemies in the scene or no visible enemies in the scene. So if the <b>Main Actors</b> array is also empty, then should check, what is going on. Is any visible enemy or there are no enemies at all ? Well, if the bridge actor is a nullptr then there are no visible/viable enemies. In my case i just print something but realistically should have a some sort of widget to indicate this to the player. If <b>Main Actor</b> array is not empty but the <b>Actors In Sight</b> is empty then the player cycle through but an enemy is not in sight. So somehow i need to re-trigger the function <b>Filter by Sight Hybrid</b> to see what avalaible actor is in sight. So since the last index of the <b>Main Array</b> would be also the last enemy that the player cycled through, if it's a valid, then remove it from the <b>Actors In Range Pool</b>(since i will loop again with this array), reset the <b>Main Actors</b> array so it's fresh. Now, i believe there should a better way to check this and i am trying to make it better as i type this. Also a problem that might occur is if the <b>Actors In Range Pool</b> array num at the checking point is equal with 1. Because i am removing the item, with a num() = 1, it's like i am clearing the array and i am ruining the whole reserving method. One temporary way is to check if the length of the array is 1. if its don't remove because that would cause as if clearing the array, then check the bridge actor if it's valid, and if it's valid set the main actor and continue the chain functions. If it's not one, remove the item, reset the main array and trigger again the function to find the potential target.
+</p>
 
+
+|Check Arrays | Temporary Checking |
+| :----------: | :---------: |
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\CheckArrays.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\CheckArrays.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\TemporaryWay.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\TemporaryWay.PNG" width="500">|
+
+
+---
+
+
+Lastly, for showing the visuals, clearing and/or canceling, is almost the same as the [Blueprint Only Approach](#blueprint-approach). The major difference is in the Show visuals function while in this version, there is a check if the <b>Main Actor</b> Array is less than the pool size integer. So if it's true then add unique to the array and send a true boolean through the interface. If though it's in the max limit, reset the <b>Main Actor</b> Array and trigger the filter by sight hybrid approach function. And because the <b>Main Actor</b> Array now got Reset, the first enemy that the filter is finds and be visible, will be the valid one and break the loop. So in theory let's say, the Actors in Range Array max capacity through reserving will be 100 Actors. This array is getting sorted and now can loop over to find the valid actor. So now even if the <b>Main Array</b> has capacity of 100, the breaking saves a very good amount of computation inside the frame(since the first time there would be one iteration, the second time two iterations and so own the contain iteration also would be something like that). Not only i can save computation power, but i can set a limit, something like, cycle only though 20 Actors in the scene. So even the worst scenerario could be ~ 2000 iterations
+
+
+|Clear Visuals | Show Closest Target |
+| :----------: | :---------: |
+|<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\ClearVisuals.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\ClearVisuals.PNG" width="500"> | <a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\ShowClosestTarget.PNG"> </a> <img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\ShowClosestTarget.PNG" width="500">|
+
+
+<p align="center">
+<b>Cancel Targeting</b>
+</p>
+
+<p align="center">
+<a href="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\CancelTargeting.PNG"> </a><img src="ScreenShotsAndVids\ScreenShots\TargetingSystem\HybridApproach\CancelTargeting.PNG" width="800">
+</p>
+
+
+## C++ Approach
+
+For the **C++** approach only, i am not confident yet to actually document and say what it does. It's similar with the [Blueprint Hybrid Approach](#hybrid-approach). Although i can sure put some navigations links to see the code.
+
+Enemy Base :point_right: [Source\TestingStuff\Public\EnemyBase](Source\TestingStuff\Public\EnemyBase)

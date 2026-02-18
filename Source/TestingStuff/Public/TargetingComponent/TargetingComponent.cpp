@@ -35,6 +35,9 @@ void UTargetingComponent::BeginPlay()
     	if (IsValid(PlayerCharacterRef))
     	{
     		// Reserve All Arrays. If reserving from blueprints then dont reserve here.
+    		UKismetSystemLibrary::PrintString(GetWorld(), "Character And Controller is Valid",true,true, FColor::Purple,5.f, NAME_None);
+    		UKismetSystemLibrary::PrintString(GetWorld(), PlayerCharacterRef->GetName(),true,true, FColor::Purple,5.f, NAME_None);
+    		UKismetSystemLibrary::PrintString(GetWorld(), PlayerControllerRef->GetName(),true,true, FColor::Purple,5.f, NAME_None);
     		ReserveActorArrays();
     		GetWorld()->GetTimerManager().ClearTimer(CastTimer);
     	}
@@ -46,6 +49,19 @@ void UTargetingComponent::BeginPlay()
     }
     
 }
+
+void UTargetingComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	// Empty All arrays since dont need the memory reserving and reseting anymore
+	// Clear the time handler as well
+	ActorsInRangePool.Empty();
+	MainActorPool.Empty();
+	ActorsInSightPool.Empty();
+	GetWorld()->GetTimerManager().ClearTimer(CastTimer);
+}
+
 void UTargetingComponent::CastEveryXSeconds()
 {
 	RetryNumber++;
@@ -151,30 +167,40 @@ void UTargetingComponent::FindActorsInRange()
 				ActorsToIgnore,
 				OverlapedActors);
 		
-			for (AActor* Actor : OverlapedActors)
+			if (OverlapedActors.IsEmpty())
 			{
-				// Check if the actor has the interface (Could check if Actor->Implements<UTargetingInterface>() first,but
-				// it is the same thing I believe to check ITargetingInterface::Execute_IsTargetable(Actor) == true.
-				// Also check the Tag Array. By default, in Blueprints the tags will be something like 
-				// State.Dead, State.Invisible etc. If enemy has a tag like that, should not be added to ActorsInRange
-				// Any Other Sorting Methods/Like Enemy Type Tags (Enemy.Monster.Type1 or Enemy.Monster.Type2 etc
-				// can be checked here.
-				if (IsValid(Actor) &&
-					Actor->Implements<UTargetingInterface>())
+				UKismetSystemLibrary::PrintString(GetWorld(),"Empty",true,true,FColor::Purple,5.f,NAME_None);
+			}
+			else
+			{
+				for (AActor* Actor : OverlapedActors)
 				{
-					if (ITargetingInterface::Execute_IsTargetable(Actor) == true
-						&& ActorsInRangePool.Num() < PoolSizeForActorsInRange
-						&& !StateTagArray.Contains(ITargetingInterface::Execute_GetStateTag(Actor)))
+					// Check if the actor has the interface (Could check if Actor->Implements<UTargetingInterface>() first,but
+					// it is the same thing I believe to check ITargetingInterface::Execute_IsTargetable(Actor) == true.
+					// Also check the Tag Array. By default, in Blueprints the tags will be something like 
+					// State.Dead, State.Invisible etc. If enemy has a tag like that, should not be added to ActorsInRange
+					// Any Other Sorting Methods/Like Enemy Type Tags (Enemy.Monster.Type1 or Enemy.Monster.Type2 etc
+					// can be checked here.
+					if (IsValid(Actor) &&
+						Actor->Implements<UTargetingInterface>())
 					{
-						ActorsInRangePool.Add(Actor);
-						if (ActorsInRangePool.Num() == PoolSizeForActorsInRange)
+						const bool bIsTargetable = ITargetingInterface::Execute_IsTargetable(Actor);
+						const FGameplayTag StateTag = ITargetingInterface::Execute_GetStateTag(Actor);
+						if (bIsTargetable 
+							&& ActorsInRangePool.Num() < PoolSizeForActorsInRange
+							&& !StateTagArray.Contains(StateTag))
 						{
-							SortActorsInRangeByDistance();
-							break;
+							ActorsInRangePool.Add(Actor);
+							if (ActorsInRangePool.Num() == PoolSizeForActorsInRange)
+							{
+								SortActorsInRangeByDistance();
+								break;
+							}
 						}
 					}
 				}
 			}
+			
 		}
 		else 
 		{
@@ -186,7 +212,6 @@ void UTargetingComponent::FindActorsInRange()
 	{
 		SortActorsInRangeByDistance();
 	}
-	
 }
 
 void UTargetingComponent::FilterActorsInRangeBySight()
@@ -212,21 +237,23 @@ void UTargetingComponent::FilterActorsInRangeBySight()
 			//-----------------------------End Of Collision Params----------------------------------
 		
 			//----------------------------Loop over actors in range array----------------------------
-			for (AActor* Actor : ActorsInRangePool)
+			for (const TObjectPtr<AActor>& Actor : ActorsInRangePool)
 			{
 				if (IsValid(Actor) && Actor->Implements<UTargetingInterface>())
 				{
 					FHitResult OutHit;
+					const FVector EnemyLocationPoint = ITargetingInterface::Execute_GetTargetingPointLocation(Actor);
+					
 					GetWorld()->LineTraceSingleByObjectType(OutHit,
 					StartLocation,
-					ITargetingInterface::Execute_GetTargetingPointLocation(Actor),
+					EnemyLocationPoint,
 					ObjectParams,
 					ActorToIgnore);
 					//----------------------------Debugging Line Trace--------------------------------------
 					//Draw Debug Line To See the trace
 					DrawDebugLine(GetWorld(),
 					StartLocation,
-					ITargetingInterface::Execute_GetTargetingPointLocation(Actor),
+					EnemyLocationPoint,
 					FColor::Red,
 					false,
 					1.f,
@@ -271,10 +298,11 @@ void UTargetingComponent::FilterActorsInRangeBySight()
 					}
 				}
 			}
-			// On Completed Check the Arrays when the loop finishes
-			CheckFilteredArrays();
 		}
+		// On Completed Check the Arrays
+		CheckFilteredArrays();
 	}
+	
 }
 
 void UTargetingComponent::CheckFilteredArrays()
@@ -288,7 +316,8 @@ void UTargetingComponent::CheckFilteredArrays()
 		{
 			if (BridgeActor == nullptr)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("No Valid/Visible/Targets in Sigh/Range"));
+				UKismetSystemLibrary::PrintString(GetWorld(), "NoValid/Visible Targets",true,true,
+					FColor::Purple, 5.f,NAME_None);
 			}
 			else
 			{
@@ -308,10 +337,24 @@ void UTargetingComponent::CheckFilteredArrays()
 			if (IsValid(ActorToRemove))
 			{
 				ActorsInRangePool.Remove(ActorToRemove);
-				
+				if (ActorsInRangePool.IsEmpty())
+				{
+					if (IsValid(BridgeActor))
+					{
+						MainValidActor = BridgeActor;
+					}
+				}
+				else
+				{
+					ResetArrays(ETargetingPoolArraysType::MainActorPool);
+					FilterActorsInRangeBySight();
+				}
 			}
-			ResetArrays(ETargetingPoolArraysType::MainActorPool);
-			FilterActorsInRangeBySight();
+			else
+			{
+				ResetArrays(ETargetingPoolArraysType::MainActorPool);
+				FilterActorsInRangeBySight();
+			}
 		}
 	}
 }
@@ -319,11 +362,11 @@ void UTargetingComponent::CheckFilteredArrays()
 void UTargetingComponent::ClearVisualsFromTarget()
 {
 	// Clear the visuals with the Interface and set the bridge and main actor to null
+	BridgeActor = nullptr;
 	if (IsValid(MainValidActor) && MainValidActor->Implements<UTargetingInterface>())
 	{
 		ITargetingInterface::Execute_ShowTarget(MainValidActor, false);
 		MainValidActor = nullptr;
-		BridgeActor = nullptr;
 	}
 }
 
@@ -339,7 +382,7 @@ void UTargetingComponent::ShowVisualsOnTarget()
 	{
 		if (MainActorPool.Num()<MainMaxPoolSize)
 		{
-			MainActorPool.Add(MainValidActor);
+			MainActorPool.AddUnique(MainValidActor);
 			ITargetingInterface::Execute_ShowTarget(MainValidActor,true);
 		}
 		else
@@ -348,7 +391,7 @@ void UTargetingComponent::ShowVisualsOnTarget()
 			FilterActorsInRangeBySight();
 			if (IsValid(MainValidActor) && MainValidActor->Implements<UTargetingInterface>())
 			{
-				MainActorPool.Add(MainValidActor);
+				MainActorPool.AddUnique(MainValidActor);
 				ITargetingInterface::Execute_ShowTarget(MainValidActor, true);
 			}
 		}
