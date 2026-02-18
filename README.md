@@ -16,7 +16,10 @@
    - [Hybrid Approach](#hybrid-approach)
       - [Array Functions](#array-functions)  
       - [Blueprint Logic](#blueprint-logic)
-   - [C++ Approach](#c++-approach)    
+   - [C++ Approach](#cpp-approach)    
+
+
+   
 #### Few Words About Me
 ---
     
@@ -535,8 +538,21 @@ Lastly, for showing the visuals, clearing and/or canceling, is almost the same a
 </p>
 
 
-## C++ Approach
+## Cpp Approach
 
 For the **C++** approach only, i am not confident yet to actually document and say what it does. It's similar with the [Blueprint Hybrid Approach](#hybrid-approach). Although i can sure put some navigations links to see the code.
 
-Enemy Base :point_right: [Source\TestingStuff\Public\EnemyBase](Source\TestingStuff\Public\EnemyBase)
+Enemy Base :point_right: [Enemy Base](Source\TestingStuff\Public\EnemyBase)
+
+Targeting Interface :point_right: [Targeting Interface](Source\TestingStuff\TargetingSystem\TargetingInterface)
+
+Targeting Component :point_right: [Targeting Component](Source\TestingStuff\TargetingSystem\TargetingComponent)
+
+
+If the Links do not work : 
+
+Enemy Base : Source->TestingStuff->Public->Enemy Base
+
+Targeting interface : Source->TestingStuff->TargetingSystem->TargetingInterface
+
+Targeting Component : Source->TestingStuff->TargetingSystem->TargetingComponent

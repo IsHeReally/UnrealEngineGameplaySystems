@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "TargetingComponent/TargetingComponent.h"
+#include "TargetingComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "TestingStuff/TargetingComponent/TargetingInterface/TargetingInterface.h"
+#include "TestingStuff/TargetingSystem/TargetingInterface/TargetingInterface.h"
 #define ECC_TARGETING ECC_GameTraceChannel1
 
 // Sets default values for this component's properties
@@ -336,8 +336,7 @@ void UTargetingComponent::CheckFilteredArrays()
 			AActor* ActorToRemove = MainActorPool.Last();
 			if (IsValid(ActorToRemove))
 			{
-				ActorsInRangePool.Remove(ActorToRemove);
-				if (ActorsInRangePool.IsEmpty())
+				if (ActorsInRangePool.Num() == 1)
 				{
 					if (IsValid(BridgeActor))
 					{
@@ -346,10 +345,11 @@ void UTargetingComponent::CheckFilteredArrays()
 				}
 				else
 				{
+					ActorsInRangePool.Remove(ActorToRemove);
 					ResetArrays(ETargetingPoolArraysType::MainActorPool);
 					FilterActorsInRangeBySight();
 				}
-			}
+			}	
 			else
 			{
 				ResetArrays(ETargetingPoolArraysType::MainActorPool);

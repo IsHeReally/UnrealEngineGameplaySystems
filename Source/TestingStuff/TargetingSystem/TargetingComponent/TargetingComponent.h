@@ -130,6 +130,8 @@ protected:
 	void SortActorsInRangeByDistance();
 	// --------------------End Of Targeting Funcs------------------------------------
 	
+	
+	//------- Test about casting, if the controller and char ref are not valid---
 	UFUNCTION(BlueprintCallable, Category="Targeting|Timer|Casting")
 	void CastEveryXSeconds();
 
@@ -139,7 +141,7 @@ protected:
 	int32 RetryNumber;
 	UPROPERTY()
 	int32 MaxRetries = 6;
-	
+	// -------------------- end of test ------------------------------------
 	
 public:	
 	// Called every frame

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
-#include "TestingStuff/TargetingComponent/TargetingInterface/TargetingInterface.h"
+#include "TestingStuff/TargetingSystem/TargetingInterface/TargetingInterface.h"
 #include "EnemyBase.generated.h"
 
 #define ECC_TARGETING ECC_GameTraceChannel1
