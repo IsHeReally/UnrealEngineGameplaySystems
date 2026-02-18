@@ -542,11 +542,11 @@ Lastly, for showing the visuals, clearing and/or canceling, is almost the same a
 
 For the **C++** approach only, i am not confident yet to actually document and say what it does. It's similar with the [Blueprint Hybrid Approach](#hybrid-approach). Although i can sure put some navigations links to see the code.
 
-Enemy Base :point_right: [Enemy Base](Source\TestingStuff\Public\EnemyBase)
+Enemy Base :point_right: [Enemy Base](Source/TestingStuff/Public/EnemyBase)
 
-Targeting Interface :point_right: [Targeting Interface](Source\TestingStuff\TargetingSystem\TargetingInterface)
+Targeting Interface :point_right: [Targeting Interface](Source/TestingStuff/TargetingSystem/TargetingInterface)
 
-Targeting Component :point_right: [Targeting Component](Source\TestingStuff\TargetingSystem\TargetingComponent)
+Targeting Component :point_right: [Targeting Component](Source/TestingStuff/TargetingSystem/TargetingComponent)
 
 
 If the Links do not work : 
