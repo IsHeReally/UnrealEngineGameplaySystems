@@ -11,9 +11,9 @@
 UENUM(BlueprintType)
 enum class ETargetingPoolArraysType : uint8
 {
-	MainActorPool = 0  UMETA(DisplayName = "Main Actor Pool"),
-	ActorsInRangePool  UMETA(DisplayName = "Actors In Range Pool"),
-	ActorsInSightPool  UMETA(DisplayName = "Actors In Sight Pool"),
+	CyclingActors = 0  UMETA(DisplayName = "Main Actor" ),
+	ActorsInRange  UMETA(DisplayName = "Actors In Range"),
+	ActorsInSight  UMETA(DisplayName = "Actors In Sight"),
 };
 
 
@@ -27,132 +27,115 @@ public:
 	UTargetingComponent();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Actors|Main")
-	TObjectPtr<AActor> MainValidActor;
+	TObjectPtr<AActor> TargetActor;
+	// Tags for sorting
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
+	FGameplayTagContainer StateTags;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
+	FGameplayTagContainer EnemyTypeTags;
+	
+	// Range
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Range")
+	float TargetingRange; // if differnt classes -> different range set this var
 	
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-	
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//------------------------------Vars-----------------------------------
-	//-----------------------------Arrays----------------------------------
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
-	TArray<TObjectPtr<AActor>> MainActorPool;
+	// if Hybrid Approach -> blueprintReadWrite. If only C++ no need the BP macro
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
-	TArray<TObjectPtr<AActor>> ActorsInRangePool;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Arrays")
+	TArray<AActor*> ActorsInRange;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Pool")
-	TArray<TObjectPtr<AActor>> ActorsInSightPool; // Bridge Array. Does not need a big reserve
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Arrays")
+	TArray<AActor*> CyclingActors;
 	
-	//------------------------- End of Arrays ------------------------------
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Arrays")
+	TArray<AActor*> ActorsInSight;
 	
-	// --------------------------BridgeActor -------------------------------
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category ="Targeting|Visibility")
+	bool bIsVisible;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Actors|Bridge")
-	TObjectPtr<AActor> BridgeActor;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category ="Targeting|Arrays|Size")
+	int32 ActorsInRangeSize;
 	
-	// -------------------------- End of Target Actor ------------------------
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category ="Targeting|Arrays|Size")
+	int32 CyclingActorsSize;
 	
-	//-------------------------------GameplayTags----------------------------------
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
-	TArray<FGameplayTag> StateTagArray;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
-	FGameplayTag EnemySorting;
-	//-----------------------------End of GameplayTags------------------------
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Visibility")
-	bool bTargetIsVisible;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Visibility")
-	float TargetingRange = 4000.f; // Default value
-	//-----------------------------Pool Settings------------------------------
-	
-	
-	// ---------------------------Pool Sizes ---------------------------------
-	// Mainly if Arrays have different sizes. Can Tweak from Editor 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting|Pool|Size")
-	int32 MainMaxPoolSize;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting|Pool|Size")
-	int32 PoolSizeForActorsInRange;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Targeting|Pool|Size")
-	int32 PoolSizeForActorsInSight;
-	
-	//--------------------------End Of Pool Sizes-------------------------------
-	//------------------------------End of Vars-------------------------------------------
-	// Functions
-	// --------------------------PoolSettings Functions---------------------------------
-	UFUNCTION(BlueprintCallable, Category="Targeting|PoolSettings|Reserve")
-	void ReserveArrays(const ETargetingPoolArraysType ArrayPool, int32 NumberToReserve);
-	
-	UFUNCTION(BlueprintCallable, Category="Targeting|PoolSettings|Reset")
-	void ResetArrays(const ETargetingPoolArraysType ArrayPool);
-	
-	// Reserve 3 Arrays at once. Can do in BeginPlay without calling 3 times with different Enum.
-	UFUNCTION(BlueprintCallable, Category = "Targeting|PoolSettings|Reserve")
-	void ReserveActorArrays();
-	// -------------End of Reserve And Reset Functions--------------------------
-	
-	// ------------------------Pool Sizes --------------------------------------
-	// Can use the Get Max Size Of Arrays by each array or switch on Enums
-	UFUNCTION(BlueprintPure, Category = "Targeting|Pool|Utility|Size")
-	int32 GetMaxSizeOfArrays(const ETargetingPoolArraysType ArrayType) const;
-	
-	//----------------------End of PoolSizes------------------------------------
-	
-	//------------------------Memory Printing Function-------------------------------
-	// Mainly to see memory size
-	// Can use those functions either with enum or by each array
-	UFUNCTION(BlueprintPure, Category = "Targeting|Pool|Utility|Memory")
-	int32 GetAllocatedMemoryArrays(const ETargetingPoolArraysType ArrayTypes) const;
-	//---------------End Memory Printing Functions---------------------------------
-	
-	//---------------------Targeting Functions-------------------------------------
-	UFUNCTION(BlueprintCallable, Category= "Targeting|Functions|Sorting")
-	void FindActorsInRange();
-	
-	UFUNCTION(BlueprintCallable, Category = "Targeting|Functions|Sorting")
-	void FilterActorsInRangeBySight();
-	
-	UFUNCTION(BlueprintCallable, Category ="Targeting|Functions|Sorting")
-	void CheckFilteredArrays();
-	
-	UFUNCTION(BlueprintCallable, Category = "Targeting|Functions|Sorting")
-	void ClearVisualsFromTarget();
-	
-	UFUNCTION(BlueprintCallable, Category = "Targeting|Functions|Sorting")
-	void ShowVisualsOnTarget();
-	// Find the Distance If Character Ref is valid and sort the ActorsInRange Array.
-	UFUNCTION(BlueprintCallable, Category = "Targeting|Functions|Sorting")
-	void SortActorsInRangeByDistance();
-	// --------------------End Of Targeting Funcs------------------------------------
-	
-	
-	//------- Test about casting, if the controller and char ref are not valid---
-	UFUNCTION(BlueprintCallable, Category="Targeting|Timer|Casting")
-	void CastEveryXSeconds();
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category ="Targeting|Arrays|Size")
+	int32 ActorsInSightSize;
 
-	UPROPERTY()
-	FTimerHandle CastTimer;
-	UPROPERTY()
-	int32 RetryNumber;
-	UPROPERTY()
-	int32 MaxRetries = 6;
-	// -------------------- end of test ------------------------------------
 	
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 private:
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "Targeting|Refs", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<APlayerController> PlayerControllerRef;
 	
 	UPROPERTY(VisibleDefaultsOnly,BlueprintReadOnly, Category = "Targeting|Refs", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<ACharacter> PlayerCharacterRef;
+	
+public:	
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	
+	
+	
+	
+protected:
+
+	// Called when the game starts
+	virtual void BeginPlay() override;
+	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+	
+	// Hybrid / Helpers for Blueprints
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Getters", meta=(ArrayParm="TargetArray"))
+	int32 GetMaxArrayNum(const TArray<AActor*>& TargetArray);
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Getters")
+	int32 GetAllocatedSizeArray(const ETargetingPoolArraysType& ArrayType);
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Reserve")
+	void ReserveTargetArray( UPARAM(ref) TArray<AActor*>& TargetArray, const int32 NumberToReserve);
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Reset")
+	void ResetTargetArray( UPARAM(ref) TArray<AActor*>& TargetArray);
+	
+	// if UPARAM Does not work 
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Getters")
+	int32 GetMaxArrayTypeNum(const ETargetingPoolArraysType& ArrayType);
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Reserve")
+	void ReserveTypeArray( const ETargetingPoolArraysType& ArrayType,const int32 NumberToReserve);
+	
+	UFUNCTION(BlueprintCallable, Category= "TargetingFuncs|Hybrid|Reset")
+	void ResetTypeArray( const ETargetingPoolArraysType& ArrayType);
+	
+	
+	
+	// Cycling Functions C++
+	
+	UFUNCTION(BlueprintCallable, Category = "Targeting|Sorting|C++")
+	void FindActorsInRange();
+	
+	UFUNCTION(BlueprintCallable, Category = "Targeting|Sorting|C++")
+	void FindActorsInSight();
+	
+	UFUNCTION(BlueprintCallable, Category = "Targeting|Sorting|C++")
+	void ShowTarget();
+	
+	UFUNCTION(BlueprintCallable, Category = "Targeting|Sorting|C++")
+	void ClearTarget();
+	
+	UFUNCTION(BlueprintCallable,Category= "Targeting|Sorting|C++")
+	void CancelTargeting();
+	
+	UFUNCTION(BlueprintCallable, Category = "Targeting|Hybrid|Sort")
+	void SortArray(TArray<AActor*>& TargetArray);
+	
+	UFUNCTION()
+	void Debug(const FString& String);
+	
 };
 
 

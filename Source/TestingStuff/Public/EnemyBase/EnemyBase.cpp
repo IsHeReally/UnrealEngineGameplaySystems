@@ -36,24 +36,28 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-bool AEnemyBase::IsTargetable_Implementation()
-{
-	return bIsTargetable;
-}
+
 
 void AEnemyBase::ShowTarget_Implementation(bool bShow)
 {
-	
+	// in blueprints
 }
 
-FGameplayTag AEnemyBase::GetStateTag_Implementation()
+FTargetingData AEnemyBase::GetTargetingData_Implementation()
 {
-	return StateTag;
+	FTargetingData Data;
+	Data.bIsTargetable = bIsTargetable;
+	Data.EnemyStateTag = StateTag;
+	Data.EnemyTypeTag  = EnemyTypeTag;
+	
+	return Data;
 }
+
+
 
 FVector AEnemyBase::GetTargetingPointLocation_Implementation()
 {
 	// Return The location of the component Box collision
-	return TargetingPointBox->GetComponentLocation();
+	return  TargetingPointBox->GetComponentLocation();
 }
 

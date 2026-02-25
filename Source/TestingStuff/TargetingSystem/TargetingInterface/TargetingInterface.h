@@ -11,6 +11,19 @@
 /**
  * 
  */
+USTRUCT(BlueprintType) struct FTargetingData
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	bool bIsTargetable;
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	FGameplayTag EnemyStateTag; // What is the State
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	FGameplayTag EnemyTypeTag; // What is the Enemy Type
+};
 UINTERFACE(MinimalAPI, Blueprintable)
 class  UTargetingInterface : public UInterface
 {
@@ -23,14 +36,12 @@ class TESTINGSTUFF_API ITargetingInterface
 	
 public:
 	// Functions
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interface|Targeting")
-	bool IsTargetable();
+	
+	UFUNCTION(BlueprintNativeEvent, Category = "Interface|Targeting")
+	FTargetingData GetTargetingData();
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interface|Targeting")
-	void ShowTarget(bool bShow);
-	
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interface|Targeting")
-	FGameplayTag GetStateTag();
+	void ShowTarget(const bool bShow);
 	
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interface|Targeting")
 	FVector GetTargetingPointLocation();

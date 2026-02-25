@@ -30,22 +30,28 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
 	//Targeting Interface Functions
-	virtual bool IsTargetable_Implementation() override;
 	
 	virtual void ShowTarget_Implementation(bool bShow) override;
 	
-	virtual FGameplayTag GetStateTag_Implementation() override;
+	virtual FTargetingData GetTargetingData_Implementation() override;
 	
 	virtual FVector GetTargetingPointLocation_Implementation() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
+	
+	
+	
+	// Targeting Vars
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
 	FGameplayTag StateTag;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
-	bool bIsTargetable = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
+	bool bIsTargetable ;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
 	FVector TargetingLocation;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
+	FGameplayTag EnemyTypeTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Box|Collision")
 	TObjectPtr<UBoxComponent> TargetingPointBox;
