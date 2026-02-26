@@ -156,7 +156,7 @@ void UTargetingComponent::FindActorsInRange()
 			ObjectParams,
 			false,
 			ActorsToIgnore,
-			EDrawDebugTrace::None,
+			EDrawDebugTrace::ForDuration,
 			HitResults,
 			true);
 		
@@ -171,7 +171,7 @@ void UTargetingComponent::FindActorsInRange()
 				{
 					const FTargetingData& Data = ITargetingInterface::Execute_GetTargetingData(Actor);
 					if (Data.bIsTargetable && Data.EnemyTypeTag.MatchesAny(EnemyTypeTags)
-						&& Data.EnemyStateTag.MatchesAny(StateTags)
+						&& !Data.EnemyStateTag.MatchesAny(StateTags)
 						&& ActorsInRange.Num() < ActorsInRangeSize )
 					{
 						ActorsInRange.Add(Actor);
@@ -192,7 +192,7 @@ void UTargetingComponent::FindActorsInRange()
 
 void UTargetingComponent::FindActorsInSight()
 {
-	if (PlayerControllerRef && !ActorsInSight.IsEmpty())
+	if (PlayerControllerRef && !ActorsInRange.IsEmpty())
 	{
 		ActorsInSight.Reset();
 		const FVector&  StartLocation = PlayerControllerRef->PlayerCameraManager->GetCameraLocation();
@@ -264,6 +264,8 @@ void UTargetingComponent::ShowTarget()
 		{
 			CyclingActors.Reset();
 			// Get The First valid actor and then break
+			// This code has Bug. If the the first valid target is the closest
+			// then you retarget it, and if its not you get a new target.
 			for (AActor*& Actor : ActorsInSight)
 			{
 				if (IsValid(Actor))
@@ -300,7 +302,7 @@ void UTargetingComponent::CancelTargeting()
 	ActorsInSight.Reset();
 }
 
-void UTargetingComponent::SortArray(TArray<AActor*>& TargetArray)
+void UTargetingComponent::SortArray(UPARAM(ref) TArray<AActor*>& TargetArray)
 {
 	if (PlayerCharacterRef)
 	{

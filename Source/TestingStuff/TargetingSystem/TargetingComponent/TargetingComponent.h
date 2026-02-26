@@ -29,10 +29,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Actors|Main")
 	TObjectPtr<AActor> TargetActor;
 	// Tags for sorting
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
 	FGameplayTagContainer StateTags;
 	
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category="Targeting|Sorting|Settings|Tags")
 	FGameplayTagContainer EnemyTypeTags;
 	
 	// Range
@@ -131,7 +131,7 @@ protected:
 	void CancelTargeting();
 	
 	UFUNCTION(BlueprintCallable, Category = "Targeting|Hybrid|Sort")
-	void SortArray(TArray<AActor*>& TargetArray);
+	void SortArray(UPARAM(ref) TArray<AActor*>& TargetArray);
 	
 	UFUNCTION()
 	void Debug(const FString& String);

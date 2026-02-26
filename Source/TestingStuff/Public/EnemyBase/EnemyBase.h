@@ -31,11 +31,11 @@ public:
 	
 	//Targeting Interface Functions
 	
-	virtual void ShowTarget_Implementation(bool bShow) override;
+	 void ShowTarget_Implementation(const bool bShow) override;
 	
-	virtual FTargetingData GetTargetingData_Implementation() override;
+	 FTargetingData GetTargetingData_Implementation() override;
 	
-	virtual FVector GetTargetingPointLocation_Implementation() override;
+	FVector GetTargetingPointLocation_Implementation() override;
 	
 	
 	
@@ -48,10 +48,10 @@ public:
 	bool bIsTargetable ;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
-	FVector TargetingLocation;
+	FGameplayTag EnemyTypeTag;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Vars|Settings")
-	FGameplayTag EnemyTypeTag;
+	FTargetingData TargetingDataRuntime;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Box|Collision")
 	TObjectPtr<UBoxComponent> TargetingPointBox;

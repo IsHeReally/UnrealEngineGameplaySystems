@@ -38,19 +38,19 @@ void AEnemyBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 
 
-void AEnemyBase::ShowTarget_Implementation(bool bShow)
+void AEnemyBase::ShowTarget_Implementation(const bool bShow)
 {
 	// in blueprints
 }
 
 FTargetingData AEnemyBase::GetTargetingData_Implementation()
 {
-	FTargetingData Data;
-	Data.bIsTargetable = bIsTargetable;
-	Data.EnemyStateTag = StateTag;
-	Data.EnemyTypeTag  = EnemyTypeTag;
 	
-	return Data;
+	TargetingDataRuntime.bIsTargetable = bIsTargetable;
+	TargetingDataRuntime.EnemyStateTag = StateTag;
+	TargetingDataRuntime.EnemyTypeTag  = EnemyTypeTag;
+	
+	return TargetingDataRuntime;
 }
 
 

@@ -15,13 +15,13 @@ USTRUCT(BlueprintType) struct FTargetingData
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
 	bool bIsTargetable;
 	
-	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
 	FGameplayTag EnemyStateTag; // What is the State
 	
-	UPROPERTY(VisibleDefaultsOnly, Category = "Targeting|Settings")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Targeting|Settings")
 	FGameplayTag EnemyTypeTag; // What is the Enemy Type
 };
 UINTERFACE(MinimalAPI, Blueprintable)
